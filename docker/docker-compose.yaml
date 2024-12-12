@@ -1,0 +1,75 @@
+version: "3.4" #版本號
+services:
+  ########## elk日誌套件(鏡像版本最好保持一致) ##########
+  elasticsearch: #服務名稱
+    container_name: elasticsearch 
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.6.2 # 使用的鏡像 elastisearch：分佈式搜索和分析引擎，提供搜索、分析、存儲數據三大功能
+    restart: on-failure #重啟策略 1)no:默認策略，當docker容器重啟時，服務也不重啟 2)always:當docker容器重啟時，服務也重啟 3)on-failure:在容器非正常退出時（退出狀態非0），才會重啟容器
+    ports: #避免出現端口映射錯誤，建議採用字符串格式
+      - "9200:9200"
+      - "9300:9300"
+    environment: #環境變量設置 也可在配置文件中設置，environment優先級高
+      - discovery.type=single-node #單節點設置
+      - bootstrap.memory_lock=true #鎖住內存 提高性能
+      - "ES_JAVA_OPTS=-Xms512m -Xmx8G" #設置啟動內存大小 默認內存/最大內存
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes: #掛載文件
+      - ./elasticsearch/data:/usr/share/elasticsearch/data
+      - ./elasticsearch/conf/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+      - ./elasticsearch/logs:/usr/share/elasticsearch/logs
+    networks: #網絡命名空間  用於隔離服務
+      - elk
+
+  kibana:
+    container_name: kibana
+    image: docker.elastic.co/kibana/kibana:8.6.2 #kibana:數據分析可視化平台
+    depends_on:
+      - elasticsearch
+    restart: on-failure
+    ports:
+      - "5601:5601"
+    volumes:
+      - ./kibana/conf/kibana.yml:/usr/share/kibana/config/kibana.yml
+    networks:
+      - elk
+
+  logstash:
+    container_name: logstash
+    image: docker.elastic.co/logstash/logstash:8.6.2 #logstash:日誌處理
+    command: logstash -f /usr/share/logstash/pipeline/logstash.conf
+    depends_on:
+      - elasticsearch
+    restart: on-failure
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    ports:
+      - "9600:9600"
+      - "5044:5044"
+    volumes: #logstash.conf日誌處理配置文件  格式：#輸入 input{}   #分析、過濾 filter{}   #輸出 output{}
+      - ./logstash/conf/logstash.yml:/usr/share/logstash/config/logstash.yml
+      - ./logstash/conf/logstash.conf:/usr/share/logstash/pipeline/logstash.conf
+    networks:
+      - elk
+
+  # filebeat:
+  #   container_name: filebeat
+  #   image: docker.elastic.co/beats/filebeat:8.6.2 #filebeat:輕量級的日誌文件數據收集器，屬於Beats六大日誌採集器之一
+  #   depends_on:
+  #     - elasticsearch
+  #     - logstash
+  #     - kibana
+  #   restart: on-failure
+  #   volumes: #filebeat.yml配置.log文件的日誌輸出到logstash #同時配置掛載需要掃描得日誌目錄，因為掃描的是filebeat容器內的文件路徑
+  #     - ./filebeat/conf/filebeat.yml:/usr/share/filebeat/filebeat.yml
+  #     - ./var/lib/docker/containers/*/*.log
+  #   networks:
+  #     - elk
+
+networks:
+  elk:

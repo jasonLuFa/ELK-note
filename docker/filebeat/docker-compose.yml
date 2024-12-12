@@ -1,0 +1,21 @@
+
+version: "3.4"
+services:
+    filebeat:
+        container_name: filebeat
+        hostname: filebeat
+        image: docker.elastic.co/beats/filebeat:8.6.2
+        restart: on-failure
+        user: root
+        logging:
+            driver: json-file
+            options:
+                max-size: "10m"
+                max-file: "3"
+                tag: "filebeat"
+        environment:
+            - TZ=Asia/Shanghai
+        volumes:
+            #- ./conf/filebeat.yml:/usr/share/filebeat/filebeat.yml
+            - ./conf/filebeat_log.yml:/usr/share/filebeat/filebeat.yml
+            - /var/lib/docker/containers:/var/lib/docker/containers:ro

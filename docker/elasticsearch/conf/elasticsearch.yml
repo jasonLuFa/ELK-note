@@ -1,0 +1,16 @@
+# default configuration in docker
+cluster.name: "elasticsearch" #集群名
+network.host: 0.0.0.0 #主機IP
+#network.bind_host: 0.0.0.0
+#cluster.routing.allocation.disk.threshold_enabled: false
+#node.name: es-master
+#node.master: true
+#node.data: true
+#http.cors.enabled: true #允許跨域，集群需要設置
+#http.cors.allow-origin: "*" #跨域設置
+#http.port: 9200
+#transport.tcp.port: 9300
+#discovery.zen.minimum_master_nodes: 1
+#discovery.zen.ping.unicast.hosts: *.*.*.*:9300,  *.*.*.*:9301,  *.*.*.*:9302
+xpack.security.enabled: false # 安全性設定，測試可以暫時關掉
+xpack.security.authc.api_key.enabled: false

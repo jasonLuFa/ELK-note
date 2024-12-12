@@ -1,0 +1,31 @@
+#filebeat.inputs:
+#  - type: docker
+    # containers:
+    #   ids:
+    #     - "*"
+  #- type: container
+   # enabled: true
+   # paths:
+    #- '/var/lib/docker/containers/*/*.log'
+#output.logstash:
+#    hosts: ["10.1.7.41:5044"]
+
+logging.level: debug
+filebeat.inputs:
+- type: log
+  enabled: true
+  paths:
+   - '/var/lib/docker/containers/*/*.log'
+  fields:
+  # env: dev
+  # json.message_key: log
+  # json.keys_under_root: true
+  # processors:
+  # - add_docker_metadata: ~
+# output.logstash:
+#   hosts: ["127.0.0.1:5044"]
+# tail_files: true
+
+output.elasticsearch:
+  # Array of hosts to connect to.
+  hosts: ["127.0.0.1:9200"]
