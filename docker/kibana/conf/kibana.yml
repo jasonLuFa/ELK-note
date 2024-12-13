@@ -8,6 +8,6 @@ server.name: "kibana"
 server.host: "0.0.0.0"
 ## host的公網ip，也可以填寫docker-compose.yml中elasticsearch的容器名如 "http://elasticsearch:9200"（前提是同屬於一個docker network，且類型為bridge）
 elasticsearch.hosts: "http://elasticsearch:9200"
-elasticsearch.username: kibana_system
-elasticsearch.password: admin
+# elasticsearch.username: kibana_system
+# elasticsearch.password: ${KIBANA_SYSTEM_PASSWORD}
 #xpack.security.enabled: false

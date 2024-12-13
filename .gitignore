@@ -1,2 +1,2 @@
-docker/elasticsearch/data/*
-docker/elasticsearch/logs/*
+docker/*/data/*
+docker/*/logs/*
